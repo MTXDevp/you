@@ -45,7 +45,6 @@ async function youRequest() {
 }
 
 
-// Función principal para realizar el scraping
 async function youScrapV2() {
     const browser = await puppeteer.launch({ headless: false });
     const page = await browser.newPage();
@@ -55,20 +54,16 @@ async function youScrapV2() {
 
     console.log("Page loaded");
 
-    // Esperar a que al menos un botón esté presente en la página
     await page.waitForSelector('button');
 
-    // Intentar encontrar el botón "Aceptar todo" directamente en el DOM
     const acceptButton = await page.evaluate(() => {
         const button = Array.from(document.querySelectorAll('button'))
             .find(button => button.textContent.includes('Aceptar todo'));
-        return button ? button.outerHTML : null; // Devuelve el HTML del botón o null si no se encuentra
+        return button ? button.outerHTML : null; 
     });
 
-    // Asegurarse de que acceptButton sea un valor válido
     if (acceptButton) {
         console.log("acceptButton found");
-        // Hacer clic en el botón dentro del contexto de la página usando un selector
         await page.evaluate(() => {
             const button = Array.from(document.querySelectorAll('button'))
                 .find(button => button.textContent.includes('Aceptar todo'));
