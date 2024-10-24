@@ -1,6 +1,6 @@
-import puppeteer from 'puppeteer';  
-import fetch from 'node-fetch'; 
-import * as cheerio from 'cheerio'; 
+import puppeteer from 'puppeteer';
+import fetch from 'node-fetch';
+import * as cheerio from 'cheerio';
 import fs from 'fs';
 
 
@@ -9,7 +9,7 @@ const url = 'https://www.youtube.com/@SerEbroEnlosDeportes';
 async function youRequest() {
     try {
         const response = await fetch(url);
-        
+
         if (response.ok) {
             const html = await response.text();
 
@@ -24,7 +24,7 @@ async function youRequest() {
 
                 if (match) {
                     match.forEach(item => {
-                        const title = item.split('"label":"')[1].replace('"', ''); 
+                        const title = item.split('"label":"')[1].replace('"', '');
                         titulos.push(title);
                     });
                 }
@@ -59,7 +59,7 @@ async function youScrapV2() {
     const acceptButton = await page.evaluate(() => {
         const button = Array.from(document.querySelectorAll('button'))
             .find(button => button.textContent.includes('Aceptar todo'));
-        return button ? button.outerHTML : null; 
+        return button ? button.outerHTML : null;
     });
 
     if (acceptButton) {
@@ -72,40 +72,40 @@ async function youScrapV2() {
             }
         });
         console.log("Clicked on accept button");
-        await getTitulos(page);
+        await getTitulos(page, browser);
     } else {
         console.log("No se encontró el botón 'Aceptar todo'");
     }
 }
 
 
-async function getTitulos(page) {
+async function getTitulos(page, browser) {
 
     try {
-  
-    await page.waitForSelector('#video-title', { timeout: 10000 });
 
-    const videoTitles = await page.evaluate(() => {
-        const videoElements = document.querySelectorAll('#video-title');
-        const titles = [];
+        await page.waitForSelector('#video-title', { timeout: 10000 });
 
-        console.log("videoElements found:", videoElements.length);
+        const videoTitles = await page.evaluate(() => {
+            const videoElements = document.querySelectorAll('#video-title');
+            const titles = [];
 
-        videoElements.forEach((video) => {
-            console.log("Extracting title:", video.textContent.trim());
-            titles.push(video.textContent.trim());
+            console.log("videoElements found:", videoElements.length);
+
+            videoElements.forEach((video) => {
+                console.log("Extracting title:", video.textContent.trim());
+                titles.push(video.textContent.trim());
+            });
+            return titles;
         });
-        return titles;
-    });
 
-    console.log(videoTitles);
+        console.log(videoTitles);
 
-    await browser.close();
-    console.log("Navegador cerrado.");
-
-} catch (error) {
-    console.error("Error durante el scraping:", error);
-  }
+    } catch (error) {
+        console.error("Error durante el scraping:", error);
+    } finally {
+        await browser.close();
+        console.log("Navegador cerrado.");
+    }
 }
 
 youScrapV2().catch(error => console.error('Error:', error));
